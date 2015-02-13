@@ -22,6 +22,6 @@ public interface IServicesPharmacie {
 
 	@WebMethod
 	@WebResult(name="ListeDesPharmaciesProche")
-	public List<Pharmacie> ListdesPharmaciesProche(@WebParam(partName="Latitude")Double lat,@WebParam(partName="Longitude")Double log) throws InvalidInputException;
+	public Pharmacie ListdesPharmaciesProche(@WebParam(partName="Latitude")Double lat,@WebParam(partName="Longitude")Double log);
 
 }

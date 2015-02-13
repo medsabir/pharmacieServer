@@ -7,9 +7,6 @@ import javax.jws.WebService;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
-
-
-
 import dao.Pharmacie;
 import metier.IMetier;
 
@@ -41,12 +38,8 @@ public class ServicesPharmacie implements IServicesPharmacie {
 	 * @see services.IServicesPharmacie#ListdesPharmaciesProche(java.lang.String)
 	 */
 	@Override
-	public List<Pharmacie> ListdesPharmaciesProche(Double lat,Double log) throws InvalidInputException{
-		if(servmetier.ListdesPharmaciesProche(lat,log).isEmpty()){
-			throw new InvalidInputException("Invalid Input", "il n'existe pas une pharmacie dont latitude est : " + lat + 
-					"et longitude est : " + log);
-		}
-		else return servmetier.ListdesPharmaciesProche(lat,log); 
+	public Pharmacie ListdesPharmaciesProche(Double lat,Double log){
+		return servmetier.ListdesPharmaciesProche(lat,log); 
 	}
 
 
