@@ -2,7 +2,6 @@ package crawler;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -11,16 +10,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/**
- * 
- * @author EL BOUFARISSI AHMED TAHA
- *
- */
 
 public class MyPageParser {
 
-//transform(String s) permet d'effacer les balises et / pour avoir en retour un String 
-	//prét a etre stocker dans la base de données
+	static Connection connection = SingletonConnection.getConnection();
+	
 	private static String transform(String s)
 	{
 		StringBuffer temp = new StringBuffer();
@@ -50,66 +44,33 @@ public class MyPageParser {
 	
 	public static void main(String[] args) throws IOException, SQLException {
 
-		//connection a la base de données
-		DB db =new DB();
-		//variable stock resultat de la requete sql TRUNCATE TABLE
-		boolean test;
-		//vider la base de données
-		String sql0 = "truncate pharmacie;";
-		test = db.runSql2(sql0);
-		
 		String langitude= null;
 		String latitude= null;
 		
-		int i=0;
-		//test D'execution
-		if(!test){
-			System.out.println(sql0 + "  DONE !!");
-		}else{
-			System.out.println("ERREUR");
-		}
-		
-		
+		PreparedStatement ps = connection.prepareStatement("truncate pharmacie;");	
+		ps.executeQuery();
+			
 		//On se connecte au site et on charge le document html
 		Document doc = Jsoup.connect("http://www.anahna.com/pharmacies-agadir-ca7-qa0.html").timeout(10*1000).get();
 
 		//On récupère dans ce document la premiere balise ayant comme nom div et pour attribut class="right"
 		Elements links = doc.select("div .right"); 
-		for(Element link: links){
-
-			
-			//link = doc.select("h1").first();
-
-			//on recupere le 1er element fils qui est le l'adress de la pharmacie	
-			System.out.println(link.child(1));
+		for(Element link: links){	
 			String  adress=  link.child(1).text();
 			transform(adress);
-			System.out.println(adress);
 
-			//on recupere le 2er element fils qui est le num de tel de la pharmacie	
-			System.out.println(link.child(2));
 			String tel =  link.child(2).text();
 			transform(tel);
-			System.out.println(tel);
 
-			//on recupere l'element fils qui est le nom de tel de la pharmacie	
-			System.out.println(link.child(0));
 			String nomPharmacie =  link.child(0).text();
 			transform(nomPharmacie);
-			System.out.println(nomPharmacie);
 
-			//On récupère dans ce document la premiere balise ayant comme nom div et pour attribut class="left"
 			Elements shs = doc.select("div .left"); 
-
-			//on récupère la balise a [href] qui contient les urls des cordonnées lat et long
+			
+			int i=0;
 			Element maps = shs.select("a").get(i); 
 
-			String relHref = maps.attr("href"); // == "/"
 			String absHref = maps.attr("abs:href"); // "http://jsoup.org/"
-
-			System.out.println("absHref =\t"+absHref);
-			System.out.println("relHref =\t"+relHref);
-
 
 			    //trouver coordonner depuis script
 				Document docs = Jsoup.connect(absHref).timeout(10000).get();
@@ -127,42 +88,79 @@ public class MyPageParser {
 			    //il existe quelque pharmacies sont coordonnées qui declanche une exeption dans le traitement
 			    if (jsCode.length()> 6)
 			    {
-			    
 			     latitude = jsCode.substring(1,jsCode.indexOf(','));
-			     langitude = jsCode.substring(jsCode.indexOf(','));
-			    
+			     langitude = jsCode.substring(jsCode.indexOf(','));		    
 			     langitude = langitude.substring(2);
-			    
-			    //System.out.println("langitude"+langitude);
-			    
-			    //System.out.println("latitude"+latitude);
-			    }else
-			    	System.out.println("impossible d'extraire,contenu introuvale !!!!!!!!!!!!!!!!!!!!!!!!!");
-			    
-			
-			//preparere la requet sql pour stocker dans la base de donnée
+			    }
 
-			String sql = "insert into pharmacie (NOM,NUM,ADRESSE,URL,LATITUDE,LONGITUDE)" + "values(?,?,?,?,?,?)";
-			
-			double lat = Double.parseDouble(latitude);
-			double log = Double.parseDouble(langitude);
-			
-			Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacies","root", "");
-			PreparedStatement preparedStatement = conn.prepareStatement(sql);
-			preparedStatement.setString(1, nomPharmacie);
-			preparedStatement.setString(2, tel);
-			preparedStatement.setString(3, adress);
-			preparedStatement.setString(4, absHref);
-			preparedStatement.setDouble(5, lat);
-			preparedStatement.setDouble(6, log);
-			preparedStatement.executeUpdate();
+			    insertToTable(nomPharmacie, tel, adress, absHref, latitude, langitude, false);
 
-			//incrementer l'indice get(i) pour les pages url
 			i++;
-			
 		}
+			
+			//trouver les pharmacies de garde depuis http://www.blanee.com
+			Document gard = Jsoup.connect("http://www.blanee.com/guides/pharmacies-de-garde-a-agadir-du-24-au-30-decembre-agadir").timeout(10*1000).get();
 
-		
+			//On récupère dans ce document la premiere balise ayant comme nom div et pour attribut class="info"
+			Elements gos = gard.select("div .info"); 
+			for(Element go: gos){
+				//on récupère la balise a [href] qui contient les noms des pharmacies de gardes
+				String nomPharmacie2 = go.select("a[href]").get(0).text();
+				
+				//on récupère la balise a [href] qui contient les urls des cordonnées lat et long
+				String urlgard = go.select("a").attr("href");
+				//System.out.println(urlgard);
+				
+				//trouver coordonner depuis script
+				Document phppage = Jsoup.connect("http://www.blanee.com"+urlgard).timeout(10000).get();
+				
+				//on recupere l'element adress de la pharmacie	
+				Element addr = phppage.select("li").get(12);
+				//System.out.println(addr);
+				String adress2 = addr.text();
+				transform(adress2);
+				
+				//on recupere l'element telephone de la pharmacie	
+				Element telp = phppage.select("li").get(15);
+				//System.out.println(addr);
+				String tell = telp.text();
+				transform(tell);
+				
+				//on vise le dernier tag  'script'de la page
+				Element tagscript = phppage.select("script").get(7);
+				
+				//charger tout le script
+				String jsCode1 = tagscript.html();
+				//System.out.println(jsCode);
+				
+				if(jsCode1.length()>100){ 
+				
+				latitude = jsCode1.substring(20,jsCode1.indexOf(','));
+				langitude = jsCode1.substring(jsCode1.indexOf(','));		    
+				langitude = langitude.substring(2,16);
+
+				}else{
+					latitude = "30.4007";
+					langitude ="-9.59484";
+				}
+
+				insertToTable(nomPharmacie2, tell, adress2, urlgard, latitude,langitude, true);
+		}
+		System.out.println("done");
+	}
+	private static void insertToTable(String nom, String tel, String adresse, String url, String latitude, String longitude, boolean garde) throws SQLException{
+		String sql = null;
+		if(garde==true){
+			sql = "insert into pharmacie (NOM,NUM,ADRESSE,URL,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,?,'true')";
+		}else sql = "insert into pharmacie (NOM,NUM,ADRESSE,URL,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,?,'false')";
+		PreparedStatement preparedStatement = connection.prepareStatement(sql);
+		preparedStatement.setString(1, nom);
+		preparedStatement.setString(2, tel);
+		preparedStatement.setString(3, adresse);
+		preparedStatement.setString(4, url);
+		preparedStatement.setString(5, latitude);
+		preparedStatement.setString(6, longitude);
+		preparedStatement.executeUpdate();
 	}
 }
 

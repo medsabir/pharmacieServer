@@ -22,6 +22,6 @@ public interface IServicesPharmacie {
 
 	@WebMethod
 	@WebResult(name="ListeDesPharmaciesProche")
-	public Pharmacie ListdesPharmaciesProche(@WebParam(partName="Latitude")Double lat,@WebParam(partName="Longitude")Double log);
+	public Pharmacie PharmacieProche(@WebParam(partName="Latitude")Double lat,@WebParam(partName="Longitude")Double log);
 
 }

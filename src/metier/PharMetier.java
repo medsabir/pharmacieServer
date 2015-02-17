@@ -3,16 +3,11 @@ package metier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import dao.PharmDAO;
 import dao.Pharmacie;
 
 public class PharMetier implements IMetier {
 
-	@Autowired
-	@Qualifier("dao")
 	PharmDAO phardao;
 
 	@Override
@@ -53,7 +48,7 @@ public class PharMetier implements IMetier {
 		return pha;
 	}
 
-	public double distance(double lat1, double lat2, double lon1, double lon2) {
+	private double distance(double lat1, double lat2, double lon1, double lon2) {
 
 		final int R = 6371; // Radius of the earth
 

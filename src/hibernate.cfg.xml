@@ -28,10 +28,9 @@
         <property name="show_sql">true</property>
         
          <!-- Drop and re-create the database schema on startup -->
-        
-        
 
         <mapping class="dao.Pharmacie"/>
+
   
            
     </session-factory>

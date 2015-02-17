@@ -15,7 +15,7 @@ import com.sun.xml.internal.txw2.annotation.XmlElement;
 @Entity
 @Table(name="PHARMACIE")
 @XmlRootElement(name = "Pharmacie")
-@XmlType(propOrder = {"id","nom","adresse","lat","log","email","num","garde"})
+@XmlType(propOrder = {"id","nom","adresse","lat","log","num","garde"})
 public class Pharmacie {
 	
 	@Id @GeneratedValue
@@ -34,15 +34,15 @@ public class Pharmacie {
 	@Column (name="LONGITUDE")
 	private Double log;
 	
-	@Column (name="EMAIL")
-	private String email;
-	
 	@Column (name="NUM")
 	private String num;
 	
 	@Column (name="GARDE")
 	@Type (type="true_false")
 	private Boolean garde;
+	
+	@Column (name="URL")
+	private String url;
 	
 	@XmlElement
 	public int getId() {
@@ -82,14 +82,7 @@ public class Pharmacie {
 	public void setLog(Double log) {
 		this.log = log;
 	}
-	@XmlElement
-	public String getEmail() {
-		return email;
-	}
-	
-	public void setEmail(String email) {
-		this.email = email;
-	}
+
 	@XmlElement
 	public String getNum() {
 		return num;
@@ -107,28 +100,18 @@ public class Pharmacie {
 		this.garde = garde;
 	}
 	
-	
-	public Pharmacie(String nom, String adresse, Double lat, Double log,
-			String email, String num, Boolean garde) {
+	public Pharmacie(String nom, String adresse, Double lat, Double log, String num, Boolean garde) {
 		super();
 		this.nom = nom;
 		this.adresse = adresse;
 		this.lat = lat;
 		this.log = log;
-		this.email = email;
 		this.num = num;
 		this.garde = garde;
 	}
 	public Pharmacie() {
 		super();
 		// TODO Auto-generated constructor stub
-	}
-	@Override
-	@XmlElement
-	public String toString() {
-		return "Pharmacie [nom=" + nom + ", adresse=" + adresse + ", lat="
-				+ lat + ", log=" + log + ", email=" + email + ", num=" + num
-				+ ", garde=" + garde + "]";
 	}
 	
 	

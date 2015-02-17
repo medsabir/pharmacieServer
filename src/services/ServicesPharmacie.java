@@ -38,7 +38,7 @@ public class ServicesPharmacie implements IServicesPharmacie {
 	 * @see services.IServicesPharmacie#ListdesPharmaciesProche(java.lang.String)
 	 */
 	@Override
-	public Pharmacie ListdesPharmaciesProche(Double lat,Double log){
+	public Pharmacie PharmacieProche(Double lat,Double log){
 		return servmetier.ListdesPharmaciesProche(lat,log); 
 	}
 
@@ -46,6 +46,8 @@ public class ServicesPharmacie implements IServicesPharmacie {
 	public void setServmetier(IMetier servmetier) {
 		this.servmetier = servmetier;
 	}
+	
+	// wsimport -keep -s src url
 
 
 }
