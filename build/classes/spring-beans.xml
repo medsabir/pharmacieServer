@@ -9,9 +9,9 @@
               http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
               http://www.springframework.org/schema/context
               http://www.springframework.org/schema/context/spring-context-2.5.xsd">
-              
+            
         <!-- étape d'injection des dependances -->
-<bean class="dao.PharmImpl" id="dao"></bean>
+<bean class="dao.PharmImpl" id="dao" ></bean>
 
 <bean class="metier.PharMetier" id="metier">
 	<property name="phardao" ref="dao"></property>
