@@ -43,7 +43,7 @@ public class MyPageParser {
 	}
 	
 	public static void main(String[] args) throws IOException, SQLException {
-
+		int i=0;
 		String langitude= null;
 		String latitude= null;
 		
@@ -67,7 +67,6 @@ public class MyPageParser {
 
 			Elements shs = doc.select("div .left"); 
 			
-			int i=0;
 			Element maps = shs.select("a").get(i); 
 
 			String absHref = maps.attr("abs:href"); // "http://jsoup.org/"
@@ -148,6 +147,7 @@ public class MyPageParser {
 		}
 		System.out.println("done");
 	}
+	
 	private static void insertToTable(String nom, String tel, String adresse, String url, String latitude, String longitude, boolean garde) throws SQLException{
 		String sql = null;
 		if(garde==true){
