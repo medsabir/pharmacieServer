@@ -15,45 +15,17 @@ public class MyPageParser {
 
 	static Connection connection = SingletonConnection.getConnection();
 	
-	private static String transform(String s)
-	{
-		StringBuffer temp = new StringBuffer();
-		int n = s.length();
-		for (int i = 0; i < n; i++)
-		{
-			if (s.charAt(i) =='\'')
-			{
-				temp.append("\'\'");
-			}
-			else
-			{
-				temp.append(s.charAt(i));
-			}
-
-			if (s.charAt(i) ==' ')
-			{
-				temp.append("");
-			}
-			else
-			{
-				temp.append(s.charAt(i));
-			}
-		}
-		return temp.toString();
-	}
-	
-	private static void insertToTable(String nom, String tel, String adresse, String url, String latitude, String longitude, boolean garde) throws SQLException{
+	private static void insertToTable(String nom, String tel, String adresse, String latitude, String longitude, boolean garde) throws SQLException{
 		String sql = null;
 		if(garde==true){
-			sql = "insert into pharmacie (NOM,NUM,ADRESSE,URL,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,?,'true')";
-		}else sql = "insert into pharmacie (NOM,NUM,ADRESSE,URL,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,?,'false')";
+			sql = "insert into pharmacie (NOM,NUM,ADRESSE,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,'true')";
+		}else sql = "insert into pharmacie (NOM,NUM,ADRESSE,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,'false')";
 		PreparedStatement preparedStatement = connection.prepareStatement(sql);
 		preparedStatement.setString(1, nom);
 		preparedStatement.setString(2, tel);
 		preparedStatement.setString(3, adresse);
-		preparedStatement.setString(4, url);
-		preparedStatement.setString(5, latitude);
-		preparedStatement.setString(6, longitude);
+		preparedStatement.setString(4, latitude);
+		preparedStatement.setString(5, longitude);
 		preparedStatement.executeUpdate();
 	}
 
@@ -72,19 +44,10 @@ public class MyPageParser {
 		Elements links = doc.select("div .right"); 
 		for(Element link: links){	
 			String  adress=  link.child(1).text();
-			transform(adress);
-
 			String tel =  link.child(2).text();
-			transform(tel);
-
 			String nomPharmacie =  link.child(0).text();
-			transform(nomPharmacie);
 
-			Elements shs = doc.select("div .left"); 
-			
-			Element maps = shs.select("a").get(i); 
-
-			String absHref = maps.attr("abs:href"); // "http://jsoup.org/"
+			String absHref = doc.select("div .left").select("a").get(i).attr("abs:href"); // "http://jsoup.org/"
 
 			    //trouver coordonner depuis script
 				Document docs = Jsoup.connect(absHref).timeout(10000).get();
@@ -96,18 +59,16 @@ public class MyPageParser {
 			    //System.out.println(jsCode);
 				
 			    //extraire la ligne qui nous interesse,dans ce cas les coordonées de la pharmacie
-			    jsCode = jsCode.substring(jsCode.indexOf('['),jsCode.indexOf(']'));	
-			    //System.out.println(jsCode);
+			    jsCode = jsCode.substring(jsCode.indexOf('['),jsCode.indexOf(']'));
 			    
 			    //il existe quelque pharmacies sont coordonnées qui declanche une exeption dans le traitement
 			    if (jsCode.length()> 6)
 			    {
 			     latitude = jsCode.substring(1,jsCode.indexOf(','));
-			     langitude = jsCode.substring(jsCode.indexOf(','));		    
-			     langitude = langitude.substring(2);
+			     langitude = jsCode.substring(jsCode.indexOf(',')).substring(2);		    
 			    }
 
-			    insertToTable(nomPharmacie, tel, adress, absHref, latitude, langitude, false);
+			    insertToTable(nomPharmacie, tel, adress, latitude, langitude, false);
 
 			i++;
 		}
@@ -124,25 +85,17 @@ public class MyPageParser {
 		for(Element go: gos){
 			//on récupère la balise a [href] qui contient les noms des pharmacies de gardes
 			String nomPharmacie2 = go.select("a[href]").get(0).text();
-			
 			//on récupère la balise a [href] qui contient les urls des cordonnées lat et long
 			String urlgard = go.select("a").attr("href");
-			//System.out.println(urlgard);
-			
+
 			//trouver coordonner depuis script
 			Document phppage = Jsoup.connect("http://www.blanee.com"+urlgard).timeout(10000).get();
 			
-			//on recupere l'element adress de la pharmacie	
-			Element addr = phppage.select("li").get(12);
-			//System.out.println(addr);
-			String adress2 = addr.text();
-			transform(adress2);
+			//on recupere l'element adress de la pharmacie
+			String adress2 = phppage.select("li").get(12).text();
 			
 			//on recupere l'element telephone de la pharmacie	
-			Element telp = phppage.select("li").get(15);
-			//System.out.println(addr);
-			String tell = telp.text();
-			transform(tell);
+			String tell = phppage.select("li").get(15).text();
 			
 			//on vise le dernier tag  'script'de la page
 			Element tagscript = phppage.select("script").get(7);
@@ -162,7 +115,7 @@ public class MyPageParser {
 				langitude ="-9.59484";
 			}
 
-			insertToTable(nomPharmacie2, tell, adress2, urlgard, latitude,langitude, true);
+			insertToTable(nomPharmacie2, tell, adress2, latitude,langitude, true);
 	}
 }
 

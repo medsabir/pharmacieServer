@@ -41,9 +41,6 @@ public class Pharmacie {
 	@Type (type="true_false")
 	private Boolean garde;
 	
-	@Column (name="URL")
-	private String url;
-	
 	@XmlElement
 	public int getId() {
 		return id;
@@ -100,8 +97,10 @@ public class Pharmacie {
 		this.garde = garde;
 	}
 	
-	public Pharmacie(String nom, String adresse, Double lat, Double log, String num, Boolean garde) {
+	public Pharmacie(int id, String nom, String adresse, Double lat,
+			Double log, String num, Boolean garde) {
 		super();
+		this.id = id;
 		this.nom = nom;
 		this.adresse = adresse;
 		this.lat = lat;

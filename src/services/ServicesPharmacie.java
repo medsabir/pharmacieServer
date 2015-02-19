@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+
 import dao.Pharmacie;
 import metier.IMetier;
 
@@ -11,9 +14,9 @@ import metier.IMetier;
 public class ServicesPharmacie implements IServicesPharmacie {
 
 
-//	XmlBeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource("spring-beans.xml"));
-//	IMetier servmetier = (IMetier) beanFactory.getBean("metier");
-	IMetier servmetier;
+	XmlBeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource("spring-beans.xml"));
+	IMetier servmetier = (IMetier) beanFactory.getBean("metier");
+//	IMetier servmetier;
 
 	/* (non-Javadoc)
 	 * @see services.IServicesPharmacie#ListdesPharmacies()
