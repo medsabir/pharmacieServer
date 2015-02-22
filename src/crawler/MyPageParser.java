@@ -39,7 +39,7 @@ public class MyPageParser {
 		String langitude= null;
 		String latitude= null;
 		//On se connecte au site et on charge le document html
-		Document doc = Jsoup.connect("http://www.anahna.com/pharmacies-agadir-ca7-qa0.html").timeout(10*1000).get();
+		Document doc = Jsoup.connect("http://www.anahna.com/pharmacies-agadir-ca7-qa0.html").timeout(10*10000).get();
 		//On récupère dans ce document la premiere balise ayant comme nom div et pour attribut class="right"
 		Elements links = doc.select("div .right"); 
 		for(Element link: links){	
