@@ -18,6 +18,7 @@ public class MyPageParser {
 	private static void insertToTable(String nom, String tel, String adresse, String latitude, String longitude, boolean garde) throws SQLException{
 		String sql = null;
 		if(garde==true){
+			
 			sql = "insert into pharmacie (NOM,NUM,ADRESSE,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,'true')";
 		}else sql = "insert into pharmacie (NOM,NUM,ADRESSE,LATITUDE,LONGITUDE,GARDE)" + "values(?,?,?,?,?,'false')";
 		PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -39,7 +40,7 @@ public class MyPageParser {
 		String langitude= null;
 		String latitude= null;
 		//On se connecte au site et on charge le document html
-		Document doc = Jsoup.connect("http://www.anahna.com/pharmacies-agadir-ca7-qa0.html").timeout(10*10000).get();
+		Document doc = Jsoup.connect("http://www.anahna.com/pharmacies-agadir-ca7-qa0.html").timeout(10*1000).get();
 		//On récupère dans ce document la premiere balise ayant comme nom div et pour attribut class="right"
 		Elements links = doc.select("div .right"); 
 		for(Element link: links){	
@@ -97,23 +98,18 @@ public class MyPageParser {
 			//on recupere l'element telephone de la pharmacie	
 			String tell = phppage.select("li").get(15).text();
 			
-			//on vise le dernier tag  'script'de la page
-			Element tagscript = phppage.select("script").get(7);
+			String lat = phppage.select("div").attr("lat");
+			String lng = phppage.select("div").attr("lng");
 			
-			//charger tout le script
-			String jsCode1 = tagscript.html();
-			//System.out.println(jsCode);
-			
-			if(jsCode1.length()>100){ 
-			
-			latitude = jsCode1.substring(20,jsCode1.indexOf(','));
-			langitude = jsCode1.substring(jsCode1.indexOf(','));		    
-			langitude = langitude.substring(2,16);
-
+			if (lat.isEmpty() && lng.isEmpty()){
+				Document phppage1 = Jsoup.connect("http://www.blanee.com"+urlgard+"/set_latlng.js").timeout(10000).get();
+				latitude=  phppage1.select("input").get(1).attr("value").substring(2,9);
+				langitude = phppage1.select("input").get(2).attr("value").substring(2,9);
 			}else{
-				latitude = "30.4007";
-				langitude ="-9.59484";
+				latitude = lat;
+				langitude = lng;
 			}
+
 
 			insertToTable(nomPharmacie2, tell, adress2, latitude,langitude, true);
 	}
